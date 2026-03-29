@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Chop First — Bold Flavors, Zero Wait</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700;1,800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #1a0e06;
+  --bg-2:     #221208;
+  --bg-card:  #2b1a0d;
+  --bg-feat:  #2e1b0f;
+  --cream:    #f5e6cc;
+  --peach:    #f5d9a8;
+  --peach-2:  #edcf9a;
+  --orange:   #e07b2a;
+  --orange-d: #c06518;
+  --text:     #f0dfc0;
+  --muted:    #9a7e65;
+  --border:   rgba(255,215,150,0.10);
+  --serif:    'Playfair Display', Georgia, serif;
+  --sans:     'DM Sans', sans-serif;
+  --r:        18px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+a { text-decoration: none; color: inherit; }
+
+/* NAV */
+nav {
+  position: sticky; top: 0; left: 0; right: 0; z-index: 100;
+  height: 80px; padding: 0 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(26,14,6,.90); backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+ 
+}
+.n-logo { display: flex; align-items: center; gap: 10px; }
+.n-logo .dot { width: 34px; height: 34px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+.n-logo .wm { font-family: var(--serif); font-size: 1.15rem; font-weight: 700; color: var(--cream); }
+.n-links { display: flex; gap: 34px; list-style: none; }
+.n-links a { font-size: .875rem; color: var(--muted); font-weight: 500; transition: color .2s; }
+.n-links a:hover { color: var(--cream); }
+.n-cta { border: 1.5px solid var(--cream); color: var(--cream); background: transparent; padding: 8px 22px; border-radius: 999px; font-size: .85rem; font-weight: 600; font-family: var(--sans); cursor: pointer; transition: background .2s, color .2s; }
+.n-cta:hover { background: var(--cream); color: var(--bg); }
+
+/* HAMBURGER / DESKTOP NAV ICON */
+.n-hamburger {
+  display: flex; flex-direction: column; justify-content: center; gap: 5px;
+  width: 36px; height: 36px; cursor: pointer; padding: 4px;
+  border-radius: 8px; transition: background .2s;
+}
+.n-hamburger:hover { background: rgba(255,255,255,.07); }
+.n-hamburger span {
+  display: block; height: 2px; border-radius: 2px;
+  background: var(--cream); transition: transform .3s, opacity .3s, width .3s;
+}
+.n-hamburger span:nth-child(2) { width: 70%; }
+
+/* DRAWER OVERLAY */
+.drawer-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(10,5,2,.6); backdrop-filter: blur(4px);
+  opacity: 0; pointer-events: none;
+  transition: opacity .3s;
+}
+.drawer-overlay.open { opacity: 1; pointer-events: all; }
+
+/* DRAWER PANEL */
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 400;
+  width: min(320px, 85vw);
+  background: #1e1208;
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .35s cubic-bezier(.4,0,.2,1);
+  padding: 0;
+}
+.drawer.open { transform: translateX(0); }
+
+.drawer-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.drawer-logo { display: flex; align-items: center; gap: 9px; font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--cream); }
+.drawer-logo .dot { width: 30px; height: 30px; border-radius: 50%; background: var(--orange); display: flex; align-items: center; justify-content: center; font-size: .9rem; }
+.drawer-close {
+  width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border);
+  background: transparent; color: var(--muted); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+  transition: background .2s, color .2s;
+}
+.drawer-close:hover { background: rgba(255,255,255,.08); color: var(--cream); }
+
+.drawer-links { padding: 20px 16px; flex: 1; }
+.drawer-links a {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 14px; border-radius: 10px;
+  font-size: .95rem; font-weight: 500; color: var(--text);
+  transition: background .18s, color .18s;
+  margin-bottom: 4px;
+}
+.drawer-links a:hover { background: rgba(255,215,150,.07); color: var(--cream); }
+.drawer-links a .di { font-size: 1.1rem; width: 26px; text-align: center; }
+
+.drawer-foot {
+  padding: 20px 24px calc(20px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border);
+}
+.drawer-cta {
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  width: 100%; background: var(--orange); color: #fff;
+  padding: 13px; border-radius: 11px; font-size: .9rem; font-weight: 700;
+  font-family: var(--sans); border: none; cursor: pointer;
+  transition: background .2s;
+}
+.drawer-cta:hover { background: var(--orange-d); }
+
+/* MOBILE HEADER */
+.mob-nav { display: none; position: sticky; top: 0; left: 0; right: 0; z-index: 100; height: 80px; padding: 0 18px; align-items: center; justify-content: space-between; background: rgba(26,14,6,.92); backdrop-filter: blur(18px); border-bottom: 1px solid var(--border); }
+.mob-logo { display: flex; align-items: center; gap: 8px; font-family: var(--serif); font-size: 1.05rem; font-weight: 700; color: var(--cream); }
+.mob-call { display: flex; align-items: center; gap: 7px; background: var(--orange); color: #fff; padding: 7px 16px; border-radius: 999px; font-size: .78rem; font-weight: 600; }
+.mob-ham { display: flex; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; }
+.mob-ham span { display: block; height: 2px; border-radius: 2px; background: var(--cream); }
+.mob-ham span:nth-child(2) { width: 70%; }
+
+/* HERO — full bleed bg image */
+#hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex; align-items: flex-end;
+  padding: 0;
+  overflow: hidden;
+}
+.hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background-image: url('https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?w=1600&q=85');
+  background-size: cover; background-position: center 40%;
+  transform: scale(1.04);
+  animation: hzoom 12s ease forwards;
+}
+@keyframes hzoom { to { transform: scale(1); } }
+.hero-overlay {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(18,8,2,.25) 0%,
+    rgba(18,8,2,.45) 35%,
+    rgba(18,8,2,.82) 70%,
+    rgba(18,8,2,.98) 100%
+  );
+}
+.hero-content {
+  position: relative; z-index: 2;
+  width: 100%; padding: 0 64px 80px;
+  max-width: 700px;
+}
+.eyebrow { font-size: .7rem; letter-spacing: .2em; color: var(--orange); text-transform: uppercase; font-weight: 700; margin-bottom: 16px; }
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(224,123,42,.15); border: 1px solid rgba(224,123,42,.35);
+  color: var(--orange); font-size: .7rem; font-weight: 700; font-family: var(--sans);
+  padding: 5px 13px; border-radius: 999px; margin-bottom: 20px;
+  letter-spacing: .08em; text-transform: uppercase;
+}
+.hero-badge .pulse { width: 6px; height: 6px; background: var(--orange); border-radius: 50%; animation: blink 1.4s infinite; }
+@keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.6)} }
+.hero-title {
+  font-family: var(--serif); font-style: italic; font-weight: 800;
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  color: var(--cream); line-height: 1.04; letter-spacing: -.03em; margin-bottom: 18px;
+}
+.hero-title .acc { color: var(--orange); font-style: italic; }
+.hero-sub { font-size: 1rem; color: rgba(240,220,180,.72); line-height: 1.68; max-width: 420px; margin-bottom: 36px; }
+.hero-actions { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.btn-dark {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--orange); color: #fff;
+  padding: 14px 28px; border-radius: 12px;
+  font-size: .95rem; font-weight: 700; font-family: var(--sans);
+  box-shadow: 0 6px 28px rgba(224,123,42,.4);
+  transition: background .2s, transform .15s;
+}
+.btn-dark:hover { background: var(--orange-d); transform: translateY(-2px); }
+.btn-dark:active { transform: scale(.97); }
+.btn-link { font-size: .88rem; color: rgba(240,220,180,.7); font-weight: 500; border-bottom: 1.5px solid rgba(240,220,180,.3); padding-bottom: 2px; transition: color .2s; }
+.btn-link:hover { color: var(--cream); }
+
+.hero-stats { display: flex; gap: 0; margin-top: 48px; border-top: 1px solid rgba(255,215,150,.12); padding-top: 32px; }
+.hero-stats > div { flex: 1; padding-right: 24px; border-right: 1px solid rgba(255,215,150,.12); margin-right: 24px; }
+.hero-stats > div:last-child { border-right: none; margin-right: 0; }
+.hs-num { font-family: var(--serif); font-size: 2rem; font-weight: 800; color: var(--cream); line-height: 1; }
+.hs-lbl { font-size: .7rem; color: var(--muted); margin-top: 4px; letter-spacing: .04em; }
+
+/* SECTION SHARED */
+.section { padding: 96px 48px; }
+.s-eyebrow { font-size: .7rem; letter-spacing: .2em; color: var(--orange); text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+.s-title { font-family: var(--serif); font-style: italic; font-weight: 800; font-size: clamp(1.9rem, 3.8vw, 2.9rem); color: var(--cream); line-height: 1.12; letter-spacing: -.02em; }
+.s-sub { color: var(--muted); font-size: .92rem; line-height: 1.7; margin-top: 10px; }
+
+/* MENU */
+#menu .mh { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 44px; }
+.btn-outline { border: 1.5px solid var(--cream); color: var(--cream); background: transparent; padding: 9px 22px; border-radius: 999px; font-size: .84rem; font-weight: 600; font-family: var(--sans); white-space: nowrap; cursor: pointer; transition: background .2s, color .2s; }
+.btn-outline:hover { background: var(--cream); color: var(--bg); }
+
+.mgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+.mc { background: var(--peach); border-radius: var(--r); overflow: hidden; position: relative; transition: transform .25s, box-shadow .25s; cursor: pointer; }
+.mc:hover { transform: translateY(-6px); box-shadow: 0 22px 50px rgba(0,0,0,.36); }
+.mc.feat { background: linear-gradient(155deg, #c96a10, #8b3d00); }
+
+.mc-img { height: 196px; background: var(--peach-2); display: flex; align-items: center; justify-content: center; font-size: 6rem; position: relative; }
+.mc.feat .mc-img { background: linear-gradient(155deg, #d47820, #9c4800); }
+
+.mc-tag { position: absolute; top: 13px; left: 13px; background: #1a0e06; color: var(--cream); font-size: .6rem; font-weight: 700; padding: 4px 10px; border-radius: 999px; letter-spacing: .08em; text-transform: uppercase; }
+.mc.feat .mc-tag { background: rgba(0,0,0,.4); }
+
+.mc-body { padding: 17px 17px 19px; background: var(--peach); }
+.mc.feat .mc-body { background: linear-gradient(155deg, #c96a10, #8b3d00); }
+.mc-stars { color: var(--orange-d); font-size: .82rem; margin-bottom: 5px; }
+.mc.feat .mc-stars { color: var(--peach); }
+.mc-name { font-family: var(--serif); font-style: italic; font-weight: 700; font-size: 1.1rem; color: #1a0e06; margin-bottom: 6px; }
+.mc.feat .mc-name { color: var(--cream); }
+.mc-desc { font-size: .77rem; color: #5a3520; line-height: 1.55; margin-bottom: 15px; }
+.mc.feat .mc-desc { color: rgba(255,230,180,.8); }
+.mc-foot { display: flex; align-items: center; justify-content: space-between; }
+.mc-price { font-family: var(--serif); font-size: 1.22rem; font-weight: 800; color: #1a0e06; }
+.mc.feat .mc-price { color: var(--cream); }
+.mc-price small { font-family: var(--sans); font-size: .68rem; font-weight: 400; opacity: .65; font-style: normal; }
+
+.order-btn { background: #1a0e06; color: var(--cream); border: none; padding: 8px 17px; border-radius: 9px; font-size: .8rem; font-weight: 600; font-family: var(--sans); cursor: pointer; transition: background .15s, transform .15s; }
+.order-btn:hover { background: #3a1e0a; }
+.order-btn:active { transform: scale(.94); }
+.mc.feat .order-btn { background: var(--cream); color: #1a0e06; }
+.order-btn.added { background: #207a20 !important; color: #fff !important; }
+
+/* WHY */
+#why { background: var(--bg-2); }
+.why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 52px; }
+.wc { background: var(--bg-feat); border: 1px solid var(--border); border-radius: var(--r); padding: 26px 24px; transition: transform .2s; }
+.wc:hover { transform: translateY(-4px); }
+.wc-icon { width: 44px; height: 44px; border-radius: 11px; background: var(--bg-card); display: flex; align-items: center; justify-content: center; font-size: 1.35rem; margin-bottom: 16px; }
+.wc-name { font-family: var(--serif); font-style: italic; font-weight: 700; font-size: 1.05rem; color: var(--cream); margin-bottom: 7px; }
+.wc-desc { font-size: .8rem; color: var(--muted); line-height: 1.65; }
+
+/* STATS */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); text-align: center; padding: 44px 48px; background: var(--bg-2); border-top: 1px solid var(--border); gap: 20px; }
+.st-num { font-family: var(--serif); font-style: italic; font-size: 2.7rem; font-weight: 800; color: var(--orange); line-height: 1; }
+.st-lbl { font-size: .76rem; color: var(--muted); margin-top: 6px; letter-spacing: .04em; }
+
+/* CHECKOUT */
+#bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  padding: 13px 48px calc(13px + env(safe-area-inset-bottom));
+  background: rgba(26,14,6,.96); backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  transform: translateY(110%);
+  transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+}
+#bar.on { transform: translateY(0); }
+.bi-count { font-family: var(--serif); font-style: italic; font-size: 1rem; color: var(--cream); font-weight: 700; }
+.bi-sub { font-size: .78rem; color: var(--muted); margin-top: 3px; }
+.cbadge { display: inline-flex; align-items: center; justify-content: center; background: var(--orange); color: #fff; width: 21px; height: 21px; border-radius: 50%; font-size: .68rem; font-weight: 700; vertical-align: middle; margin-right: 5px; }
+.send-btn { display: inline-flex; align-items: center; gap: 9px; background: #25D366; color: #fff; padding: 12px 26px; border-radius: 11px; border: none; cursor: pointer; font-size: .88rem; font-weight: 700; font-family: var(--sans); box-shadow: 0 4px 20px rgba(37,211,102,.3); text-decoration: none; transition: transform .15s; }
+.send-btn:hover { transform: translateY(-2px); }
+.send-btn:active { transform: scale(.96); }
+
+/* ANIM */
+.fu { opacity: 0; transform: translateY(26px); transition: opacity .65s ease, transform .65s ease; }
+.fu.in { opacity: 1; transform: translateY(0); }
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  nav{display:none;} .mob-nav{display:flex;}
+  #hero { align-items: flex-end; }
+  .hero-content { padding: 0 20px 100px; max-width: 100%; }
+  .hero-title { font-size: clamp(2.2rem, 9vw, 3.2rem); }
+  .hero-stats { gap: 0; margin-top: 32px; padding-top: 24px; }
+  .hero-stats > div { padding-right: 16px; margin-right: 16px; }
+  .section{padding:60px 16px;}
+  .mgrid{grid-template-columns:1fr 1fr; gap:14px;}
+  #menu .mh{flex-direction:column; align-items:flex-start; gap:14px;}
+  .why-grid{grid-template-columns:1fr 1fr;}
+  .stats{grid-template-columns:repeat(2,1fr); padding:36px 18px;}
+  #bar{padding:11px 16px calc(11px + env(safe-area-inset-bottom));}
+}
+@media(max-width:480px){
+  .mgrid{grid-template-columns:1fr;}
+  .why-grid{grid-template-columns:1fr;}
+  .hero-content { padding: 0 18px 90px; }
+}
+.mc-img img{
+    width: 100%; height: 100%; object-fit: cover; object-position: center;
+}
+.wm h1{
+    font-family: "Instrument Serif", serif;
+    font-size: 20px;
+}
+</style>
+</head>
+<body>
+
+<!-- DESKTOP NAV -->
+<nav>
+  <div class="n-logo">
+    <div class="dot">🍲</div>
+    <div class="wm"><h1>As e dey hot food</h1></div>
+  </div>
+  <ul class="n-links">
+    <li><a href="#hero">Home</a></li>
+    <li><a href="#why">About Us</a></li>
+    <li><a href="#menu">Menu</a></li>
+    <li><a href="#">FAQs</a></li>
+  </ul>
+  <div style="display:flex;align-items:center;gap:14px">
+    <a href="tel:+2349000000000" class="n-cta">Contact Us</a>
+    <div class="n-hamburger" onclick="openDrawer()" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- MOBILE NAV -->
+<div class="mob-nav">
+  <div class="mob-logo"><span>🍲</span> <div class="wm"><h1>As e dey hot food</h1></div></div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <a href="tel:+2349000000000" class="mob-call">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 5 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.9 2.11h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      Call
+    </a>
+    <div class="mob-ham" onclick="openDrawer()">
+      <span style="display:block;height:2px;border-radius:2px;background:var(--cream);width:22px"></span>
+      <span style="display:block;height:2px;border-radius:2px;background:var(--cream);width:15px"></span>
+      <span style="display:block;height:2px;border-radius:2px;background:var(--cream);width:22px"></span>
+    </div>
+  </div>
+</div>
+
+<!-- DRAWER OVERLAY -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+<!-- DRAWER -->
+<div class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div class="drawer-logo"><div class="dot">🍲</div> Chop First</div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-links">
+    <a href="#hero" onclick="closeDrawer()"><span class="di">🏠</span> Home</a>
+    <a href="#menu" onclick="closeDrawer()"><span class="di">🍛</span> Menu</a>
+    <a href="#why" onclick="closeDrawer()"><span class="di">⭐</span> About Us</a>
+    <a href="#" onclick="closeDrawer()"><span class="di">❓</span> FAQs</a>
+  </div>
+  <div class="drawer-foot">
+    <a href="tel:+2349000000000" class="drawer-cta">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 5 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.9 2.11h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      Call Now
+    </a>
+  </div>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><span class="pulse"></span> Now Taking Orders</div>
+    <h1 class="hero-title"><span class="acc">Bold Flavors.</span><br>Zero Wait.</h1>
+    <p class="hero-sub">Authentic West African cuisine cooked fresh daily and delivered hot — straight to your door in under 40 minutes.</p>
+    <div class="hero-actions">
+      <a href="#" class="btn-dark" onclick="openWhatsApp(event,'hero')">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+        Order on WhatsApp
+      </a>
+      <a href="#menu" class="btn-link">View Full Menu →</a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="hs-num">35m</div><div class="hs-lbl">Avg Delivery</div></div>
+      <div><div class="hs-num">4.9★</div><div class="hs-lbl">Customer Rating</div></div>
+      <div><div class="hs-num">100%</div><div class="hs-lbl">Fresh Daily</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- MENU -->
+<section id="menu" class="section">
+  <div class="mh">
+    <div>
+      <div class="s-eyebrow">Our Menu</div>
+      <h2 class="s-title">Explore Our Flavors</h2>
+      <p class="s-sub">Handcrafted West African meals made from premium ingredients.<br>Bold, fresh and ready to satisfy.</p>
+    </div>
+    <a href="#" class="btn-outline" onclick="openWhatsApp(event,'hero')">View All Dishes</a>
+  </div>
+
+  <div class="mgrid">
+    <!-- FEATURED -->
+    <div class="mc feat fu">
+      <div class="mc-img"><img src="images/img1.png" alt=""></div>
+      <div class="mc-tag">⭐ Best Seller</div>
+      <div class="mc-body">
+        <div class="mc-stars">★★★★★</div>
+        <div class="mc-name">Jollof Special</div>
+        <div class="mc-desc">Party-style Jollof rice slow-cooked over firewood, served with seasoned grilled chicken and fried plantains.</div>
+        <div class="mc-foot">
+          <div class="mc-price">₦3,500 <small>/ plate</small></div>
+          <button class="order-btn" onclick="addToCart(this,'Jollof Special',3500)">Order</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mc fu" style="transition-delay:.07s">
+      <div class="mc-img"><img src="images/img2.png" alt=""></div>
+      <div class="mc-tag">New</div>
+      <div class="mc-body">
+        <div class="mc-stars">★★★★★</div>
+        <div class="mc-name">Pounded Yam & Egusi</div>
+        <div class="mc-desc">Silky pounded yam with rich Egusi soup, assorted meat and smoked fish. Made fresh every morning.</div>
+        <div class="mc-foot">
+          <div class="mc-price">₦4,200 <small>/ plate</small></div>
+          <button class="order-btn" onclick="addToCart(this,'Pounded Yam',4200)">Order</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mc fu" style="transition-delay:.14s">
+      <div class="mc-img"><img src="images/img3.png" alt=""></div>
+      <div class="mc-tag">🌶️ Spicy</div>
+      <div class="mc-body">
+        <div class="mc-stars">★★★★★</div>
+        <div class="mc-name">Suya Platter</div>
+        <div class="mc-desc">Northern-style beef suya in yaji spice, served with onions, tomatoes and kuli-kuli. Perfect for sharing.</div>
+        <div class="mc-foot">
+          <div class="mc-price">₦3,800 <small>/ platter</small></div>
+          <button class="order-btn" onclick="addToCart(this,'Suya Platter',3800)">Order</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="mc fu" style="transition-delay:.21s">
+      <div class="mc-img"><img src="images/img4.png" alt=""></div>
+      <div class="mc-tag">Limited</div>
+      <div class="mc-body">
+        <div class="mc-stars">★★★★☆</div>
+        <div class="mc-name">Sides & Extras</div>
+        <div class="mc-desc">Puff-puff, fried plantains, moin-moin or peppered gizzards. Build the perfect plate.</div>
+        <div class="mc-foot">
+          <div class="mc-price">₦800+ <small>/ side</small></div>
+          <button class="order-btn" onclick="addToCart(this,'Sides & Extras',800)">Order</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section id="why" class="section" style="background:var(--bg-2)">
+  <div style="text-align:center">
+    <div class="s-eyebrow" style="text-align:center">Why Choose Us</div>
+    <h2 class="s-title" style="text-align:center">Crafted With Love,<br>Served With Purpose</h2>
+    <p class="s-sub" style="text-align:center;max-width:500px;margin:10px auto 0">We obsess over every detail — from farm to plate — so you get the boldest West African meal, every single time.</p>
+  </div>
+
+  <div class="why-grid">
+    <div class="wc fu"><div class="wc-icon">🌿</div><div class="wc-name">Premium Ingredients Only</div><div class="wc-desc">We source fresh produce daily from local Lagos markets. No frozen stock, no shortcuts. Quality starts at the source.</div></div>
+    <div class="wc fu" style="transition-delay:.07s"><div class="wc-icon">🔥</div><div class="wc-name">Slow Cooked &amp; Bold</div><div class="wc-desc">Every dish is cooked the traditional way — low and slow. The result is deep, layered flavor you simply can't fake.</div></div>
+    <div class="wc fu" style="transition-delay:.14s"><div class="wc-icon">✅</div><div class="wc-name">No Nasty Additives</div><div class="wc-desc">No artificial flavours, no preservatives, no shortcuts. Just real ingredients and real taste in every single bite.</div></div>
+    <div class="wc fu" style="transition-delay:.19s"><div class="wc-icon">⚡</div><div class="wc-name">Fast Delivery</div><div class="wc-desc">Order before noon and get your meal the same day. Fresh, hot and ready to enjoy — in under 40 minutes.</div></div>
+    <div class="wc fu" style="transition-delay:.24s"><div class="wc-icon">📦</div><div class="wc-name">Eco Friendly Packaging</div><div class="wc-desc">Leak-proof, tamper-evident containers made from sustainable materials. We care about the planet too.</div></div>
+    <div class="wc fu" style="transition-delay:.29s"><div class="wc-icon">💯</div><div class="wc-name">Satisfaction Guaranteed</div><div class="wc-desc">Not happy? We fix it — no questions asked. We stand behind every plate we make because we know you'll love it.</div></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="fu"><div class="st-num">18k+</div><div class="st-lbl">Orders Delivered</div></div>
+  <div class="fu" style="transition-delay:.06s"><div class="st-num">50+</div><div class="st-lbl">Dishes on Menu</div></div>
+  <div class="fu" style="transition-delay:.12s"><div class="st-num">8</div><div class="st-lbl">Years in Business</div></div>
+  <div class="fu" style="transition-delay:.18s"><div class="st-num">4.9★</div><div class="st-lbl">Average Rating</div></div>
+</div>
+
+<!-- CHECKOUT BAR -->
+<div id="bar">
+  <div>
+    <div class="bi-count"><span class="cbadge" id="cb">0</span><span id="cl">Items in Cart</span></div>
+    <div class="bi-sub" id="ct">Subtotal: ₦0</div>
+  </div>
+  <a href="#" class="send-btn" onclick="openWhatsApp(event,'cart')">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+    Send Order
+  </a>
+</div>
+
+<script>
+function openDrawer() {
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+
+const cart = [];
+
+function addToCart(btn, name, price) {
+  const found = cart.find(i => i.name === name);
+  found ? found.qty++ : cart.push({ name, price, qty: 1 });
+  btn.classList.add('added'); btn.textContent = '✓ Added';
+  setTimeout(() => { btn.classList.remove('added'); btn.textContent = 'Order'; }, 1600);
+  updateBar();
+}
+
+function updateBar() {
+  const n = cart.reduce((s,i)=>s+i.qty,0);
+  const t = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  document.getElementById('cb').textContent = n;
+  document.getElementById('cl').textContent = n === 1 ? 'Item in Cart' : 'Items in Cart';
+  document.getElementById('ct').textContent = 'Subtotal: ₦' + t.toLocaleString();
+  document.getElementById('bar').classList.toggle('on', n > 0);
+}
+
+function openWhatsApp(e, src) {
+  e.preventDefault();
+  const msg = (src === 'hero' || !cart.length)
+    ? 'Hello Chop First! 🍛 I\'d like to see the full menu and place an order.'
+    : 'Hello Chop First! 🍛 I\'d like to order:\n\n'
+      + cart.map(i=>`• ${i.name} x${i.qty} — ₦${(i.price*i.qty).toLocaleString()}`).join('\n')
+      + '\n\n*Total: ₦' + cart.reduce((s,i)=>s+i.price*i.qty,0).toLocaleString()
+      + '*\n\nPlease confirm and share delivery details. Thank you!';
+  window.open('https://wa.me/'+PHONE+'?text='+encodeURIComponent(msg), '_blank');
+}
+
+// Scroll fade-up
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fu').forEach(el => obs.observe(el));
+
+// Hero entrance
+const heroEls = document.querySelectorAll('.hero-badge, .hero-title, .hero-sub, .hero-actions, .hero-stats');
+heroEls.forEach((el, i) => {
+  el.style.cssText = `opacity:0;transform:translateY(18px);transition:opacity .6s ease ${i*.11}s,transform .6s ease ${i*.11}s`;
+  setTimeout(() => { el.style.opacity = 1; el.style.transform = 'translateY(0)'; }, 180 + i * 110);
+});
+</script>
+</body>
+</html>
